@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCamp: Курс Python в браузере</title>
+    <style>
+        :root {
+            --bg-main: #1e1e1e;
+            --bg-panel: #252526;
+            --text-main: #d4d4d4;
+            --text-muted: #9cdcfe;
+            --accent: #007acc;
+            --success: #4ec9b0;
+            --error: #f44747;
+            --border: #333333;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            margin: 0;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            height: 100vh;
+        }
+        header {
+            background-color: var(--bg-panel);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+        .progress-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        .progress-bar {
+            width: 150px;
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        main {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: calc(100vh - 56px);
+        }
+        nav {
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .module {
+            margin-bottom: 15px;
+        }
+        .module-title {
+            padding: 10px 20px;
+            font-weight: bold;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+        }
+        .module-title.collapsed + .lessons {
+            display: none;
+        }
+        .module-title::after {
+            content: "▸";
+            float: right;
+            transition: transform 0.2s;
+        }
+        .module-title.expanded::after {
+            transform: rotate(90deg);
+        }
+        .lessons a {
+            display: block;
+            padding: 8px 20px;
+            color: var(--text-main);
+            text-decoration: none;
+            font-size: 0.9rem;
+            border-left: 3px solid transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .lessons a:hover {
+            background-color: #333333;
+        }
+        .lessons a.active {
+            background-color: var(--accent);
+            color: #000;
+            border-left-color: var(--success);
+        }
+        .lessons a.completed {
+            color: var(--success);
+        }
+        .editor-container {
+            display: grid;
+            grid-template-rows: 1fr auto;
+            height: 100%;
+        }
+        #task-area {
+            padding: 20px;
+            overflow-y: auto;
+            background-color: var(--bg-main);
+            border-bottom: 1px solid var(--border);
+        }
+        #task-area h2 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+        #task-area pre {
+            background-color: var(--bg-panel);
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+        #task-area code {
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: var(--text-main);
+        }
+        #editor-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+            border-top: 1px solid var(--border);
+        }
+        #code-editor {
+            height: 100%;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            background-color: var(--bg-panel);
+            color: var(--text-main);
+            border: none;
+            resize: none;
+            padding: 15px;
+            border-right: 1px solid var(--border);
+        }
+        #output {
+            height: 100%;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            padding: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        #controls {
+            padding: 10px;
+            background-color: var(--bg-panel);
+            border-top: 1px solid var(--border);
+            text-align: right;
+        }
+        button {
+            background-color: var(--accent);
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #005a9e;
+        }
+        button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>PyCamp: Курс Python</h1>
+    <div class="progress-container">
+        Прогресс: <span id="progress-percent">0%</span>
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+</header>
+
+<main>
+    <nav id="sidebar">
+        <!-- Модули будут сгенерированы скриптом -->
+    </nav>
+
+    <div class="editor-container">
+        <div id="task-area">
+            <h2 id="lesson-title">Загрузка...</h2>
+            <p id="lesson-description"></p>
+            <h3>Задание:</h3>
+            <div id="task-description"></div>
+            <h3>Пример кода:</h3>
+            <pre id="example-code"><code></code></pre>
+        </div>
+
+        <div id="editor-panel">
+            <div>
+                <textarea id="code-editor">print("Hello, PyCamp!")</textarea>
+            </div>
+            <div id="output">Результат выполнения появится здесь...</div>
+        </div>
+
+        <div id="controls">
+            <button id="run-btn">▶ Выполнить код</button>
+            <button id="next-btn" class="hidden">Далее →</button>
+        </div>
+    </div>
+</main>
+
+<script>
+// === БАЗА ДАННЫХ КУРСА ===
+const courseData = [
+    {
+        id: 'intro',
+        title: 'Введение',
+        lessons: [
+            {
+                id: 'hello',
+                title: 'Hello, World!',
+                description: 'Первая программа на Python.',
+                task: 'Напишите программу, которая выводит на экран фразу "Привет, Мир!". Используйте встроенную функцию print().',
+                example: 'print("Привет, Мир!")'
+            },
+            {
+                id: 'comments',
+                title: 'Комментарии',
+                description: 'Как оставлять заметки в коде.',
+                task: 'Напишите код, который выводит "Код работает", а перед этой строкой добавьте комментарий, объясняющий, что делает этот код.',
+                example: '# Это комментарий\nprint("Код работает")'
+            }
+        ]
+    },
+    {
+        id: 'vars',
+        title: 'Переменные и типы данных',
+        lessons: [
+            {
+                id: 'vars-basic',
+                title: 'Создание переменных',
+                description: 'Хранение данных в памяти.',
+                task: 'Создайте переменную name со значением "Алексей" и переменную age со значением 25. Выведите их на экран через запятую.',
+                example: 'name = "Алексей"\nage = 25\nprint(name, age)'
+            },
+            {
+                id: 'types',
+                title: 'Основные типы данных',
+                description: 'Числа (int, float) и строки (str).',
+                task: 'Создайте переменную price со значением 199.99 (дробное число) и переменную in_stock со значением True (логический тип). Выведите их типы с помощью функции type().',
+                example: 'price = 199.99\nin_stock = True\nprint(type(price))\nprint(type(in_stock))'
+            }
+        ]
+    },
+    {
+        id: 'logic',
+        title: 'Условные операторы',
+        lessons: [
+            {
+                id: 'if-else',
+                title: 'Конструкция if-else',
+                description: 'Принятие решений в коде.',
+                task: 'Создайте переменную age. Если age больше или равно 18, выведите "Доступ разрешен", иначе выведите "Доступ запрещен".',
+                example: 'age = 20\nif age >= 18:\n    print("Доступ разрешен")\nelse:\n    print("Доступ запрещен")'
+            },
+            {
+                id: 'elif',
+                title: 'Цепочки условий (elif)',
+                description: 'Проверка нескольких условий подряд.',
+                task: 'Создайте переменную score. Если score >= 90, выведите "Оценка: A". Если от 80 до 89 — "Оценка: B". Если меньше 80 — "Оценка: C".',
+                example: 'score = 85\nif score >= 90:\n    print("Оценка: A")\nelif score >= 80:\n    print("Оценка: B")\nelse:\n    print("Оценка: C")'
+            }
+        ]
+    },
+    {
+        id: 'loops',
+        title: 'Циклы',
+        lessons: [
+            {
+                id: 'for-range',
+                title: 'Цикл for и range()',
+                description: 'Повторение действий заданное количество раз.',
+                task: 'Выведите на экран числа от 1 до 5 включительно, каждое с новой строки, используя цикл for и функцию range().',
+                example: 'for i in range(1, 6):\n    print(i)'
+            },
+            {
+                id: 'while',
+                title: 'Цикл while',
+                description: 'Цикл с условием.',
+                task: 'Напишите цикл, который выводит числа от 5 до 1 в обратном порядке.',
+                example: 'count = 5\nwhile count > 0:\n    print(count)\n    count -= 1'
+            }
+        ]
+    },
+    {
+        id: 'data',
+        title: 'Структуры данных',
+        lessons: [
+            {
+                id: 'lists',
+                title: 'Списки (Lists)',
+                description: 'Упорядоченные коллекции элементов.',
+                task: 'Создайте список fruits с тремя названиями фруктов. Выведите на экран второй элемент списка (не забывайте, что индексация начинается с 0).',
+                example: 'fruits = ["яблоко", "банан", "груша"]\nprint(fruits[1])'
+            },
+            {
+                id: 'dicts',
+                title: 'Словари (Dictionaries)',
+                description: 'Коллекции вида "ключ-значение".',
+                task: 'Создайте словарь user с ключами "name" и "city". Выведите значение по ключу "name".',
+                example: 'user = {"name": "Иван", "city": "Москва"}\nprint(user["name"])'
+            }
+        ]
+    }
+];
+
+// === СОСТОЯНИЕ ПРИЛОЖЕНИЯ ===
+let state = {
+    progress: {}, // { moduleId: { lessonId: true } }
+    currentModule: courseData[0].id,
+    currentLesson: courseData[0].lessons[0].id
+};
+
+// Если есть сохраненный прогресс, загружаем его
+if (localStorage.getItem('pycamp_progress')) {
+    try {
+        state.progress = JSON.parse(localStorage.getItem('pycamp_progress'));
+    } catch(e) {
+        localStorage.removeItem('pycamp_progress');
+    }
+}
+
+// === ОТОБРАЖЕНИЕ ИНТЕРФЕЙСА ===
+function renderSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.innerHTML = '';
+    courseData.forEach(module => {
+        const moduleDiv = document.createElement('div');
+        moduleDiv.className = 'module';
+        
+        const title = document.createElement('div');
+        title.className = 'module-title';
+        title.textContent = module.title;
+        title.onclick = () => title.classList.toggle('collapsed');
+        
+        const hasCompleted = module.lessons.some(l => state.progress[module.id]?.[l.id]);
+        if (hasCompleted) {
+            title.classList.add('completed');
+        }
+        
+        if (module.id === state.currentModule) {
+            title.classList.add('expanded');
+            title.classList.remove('collapsed');
+        } else if (hasCompleted && module.id !== state.currentModule) {
+            title.classList.add('collapsed');
+        }
+        
+        const lessonsDiv = document.createElement('div');
+        lessonsDiv.className = 'lessons';
+        
+        module.lessons.forEach(lesson => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = lesson.title;
+            link.dataset.moduleId = module.id;
+            link.dataset.lessonId = lesson.id;
+            
+            if (state.progress[module.id]?.[lesson.id]) {
+                link.classList.add('completed');
+            }
+            
+            if (module.id === state.currentModule && lesson.id === state.currentLesson) {
+                link.classList.add('active');
+            }
+            
+            link.onclick = (e) => {
+                e.preventDefault();
+                loadLesson(module.id, lesson.id);
+            };
+            lessonsDiv.appendChild(link);
+        });
+        
+        moduleDiv.appendChild(title);
+        moduleDiv.appendChild(lessonsDiv);
+        sidebar.appendChild(moduleDiv);
+    });
+}
+
+function renderLesson() {
+    const module = courseData.find(m => m.id === state.currentModule);
+    const lesson = module.lessons.find(l => l.id === state.currentLesson);
+    
+    document.getElementById('lesson-title').textContent = lesson.title;
+    document.getElementById('lesson-description').textContent = lesson.description;
+    document.getElementById('task-description').textContent = lesson.task;
+    document.getElementById('example-code').textContent = lesson.example;
+    
+    // Если урок уже пройден, показываем кнопку "Далее" сразу
+    if (state.progress[state.currentModule]?.[state.currentLesson]) {
+        document.getElementById('next-btn').classList.remove('hidden');
+        document.getElementById('run-btn').classList.add('hidden');
+    } else {
+        document.getElementById('next-btn').classList.add('hidden');
+        document.getElementById('run-btn').classList.remove('hidden');
+    }
+}
+
+function updateProgress() {
+    const totalLessons = courseData.reduce((sum, m) => sum + m.lessons.length, 0);
+    const completedLessons = Object.values(state.progress).flatMap(m => Object.values(m)).filter(Boolean).length;
+    const percent = Math.round((completedLessons / totalLessons) * 100);
+    
+    document.getElementById('progress-percent').textContent = percent + '%';
+    document.getElementById('progress-fill').style.width = percent + '%';
+    
+    localStorage.setItem('pycamp_progress', JSON.stringify(state.progress));
+    renderSidebar();
+}
+
+// === ЛОГИКА УРОКА ===
+function loadLesson(moduleId, lessonId) {
+    state.currentModule = moduleId;
+    state.currentLesson = lessonId;
+    renderSidebar();
+    renderLesson();
+    
+    // Подставляем пример кода в редактор, если он пуст или это первый запуск
+    const editor = document.getElementById('code-editor');
+    if (editor.value.trim() === '' || editor.value === 'print("Hello, PyCamp!")') {
+        editor.value = document.getElementById('example-code').textContent;
+    }
+}
+
+function checkSolution(userCode, correctExample) {
+    // Простая проверка: убираем комментарии, лишние пробелы и сравниваем
+    const cleanUser = userCode.replace(/#.*/g, '').replace(/\s+/g, '').trim();
+    const cleanExample = correctExample.replace(/#.*/g, '').replace(/\s+/g, '').trim();
+    
+    // Если пример пустой (редкий случай), проверяем просто на отсутствие синтаксических ошибок
+    if (!cleanExample) {
+        try {
+            new Function(userCode);
+            return true;
+        } catch(e) {
+            return false;
+        }
+    }
+    
+    return cleanUser === cleanExample;
+}
+
+// === ОБРАБОТЧИКИ СОБЫТИЙ ===
+document.getElementById('run-btn').addEventListener('click', () => {
+    const code = document.getElementById('code-editor').value;
+    const output = document.getElementById('output');
+    const lesson = courseData.find(m => m.id === state.currentModule).lessons.find(l => l.id === state.currentLesson);
+    
+    output.textContent = 'Выполнение...';
+    
+    try {
+        // Используем Function для изоляции, но в учебных целях это допустимый риск
+        const func = new Function(code);
+        const consoleLog = [];
+        
+        // Перехватываем console.log
+        const originalLog = console.log;
+        console.log = (...args) => {
+            consoleLog.push(args.join(' '));
+            originalLog(...args);
+        };
+        
+        func();
+        
+        // Возвращаем console.log
+        console.log = originalLog;
+        
+        output.textContent = consoleLog.join('\n') || 'Код выполнен без вывода.';
+        
+        if (checkSolution(code, lesson.example)) {
+            if (!state.progress[state.currentModule]) state.progress[state.currentModule] = {};
+            state.progress[state.currentModule][state.currentLesson] = true;
+            updateProgress();
+            
+            document.getElementById('run-btn').classList.add('hidden');
+            document.getElementById('next-btn').classList.remove('hidden');
+            document.querySelector('#sidebar a.active').classList.add('completed');
+        } else {
+            output.textContent += '\n\n[ОШИБКА] Решение не совпадает с эталоном. Попробуйте еще раз.';
+        }
+    } catch (e) {
+        output.textContent = 'Ошибка выполнения:\n' + e.message;
+    }
+});
+
+document.getElementById('next-btn').addEventListener('click', () => {
+    const module = courseData.find(m => m.id === state.currentModule);
+    const currentIndex = module.lessons.findIndex(l => l.id === state.currentLesson);
+    
+    if (currentIndex < module.lessons.length - 1) {
+        // Следующий урок в модуле
+        loadLesson(state.currentModule, module.lessons[currentIndex + 1].id);
+    } else {
+        // Следующий модуль
+        const currentModuleIndex = courseData.findIndex(m => m.id === state.currentModule);
+        if (currentModuleIndex < courseData.length - 1) {
+            const nextModule = courseData[currentModuleIndex + 1];
+            loadLesson(nextModule.id, nextModule.lessons[0].id);
+        } else {
+            // Конец курса
+            document.getElementById('task-area').innerHTML = `
+                <h2>🎉 Поздравляем! Вы прошли весь курс!</h2>
+                <p>Вы освоили основы Python. Теперь вы можете переходить к созданию своих первых проектов.</p>
+            `;
+            document.getElementById('editor-panel').classList.add('hidden');
+        }
+    }
+});
+
+// === ЗАПУСК ПРИЛОЖЕНИЯ ===
+renderSidebar();
+renderLesson();
+</script>
+
+</body>
+</html> 
