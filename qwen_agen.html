@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyCamp — бесплатный курс Python</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<style>
+:root{
+  --navy:#1b1b32;
+  --navy-2:#2a2a40;
+  --navy-3:#3b3b58;
+  --accent:#f1be32;
+  --green:#1f7a44;
+  --green-l:#2ecc71;
+  --red:#e74c3c;
+  --bg:#f5f6f7;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--navy);
+  overflow:hidden;
+}
+button{font-family:inherit}
+
+/* ---------- HEADER ---------- */
+header{
+  height:60px;
+  background:var(--navy);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  padding:0 18px;
+  gap:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+  position:relative;
+  z-index:50;
+}
+.logo{
+  font-weight:800;
+  font-size:20px;
+  letter-spacing:.5px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+}
+.logo .py{
+  background:var(--accent);
+  color:var(--navy);
+  padding:2px 8px;
+  border-radius:6px;
+  font-size:16px;
+}
+.header-progress{
+  flex:1;
+  max-width:420px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-left:auto;
+}
+.pbar{
+  flex:1;
+  height:10px;
+  background:var(--navy-3);
+  border-radius:6px;
+  overflow:hidden;
+}
+.pbar > div{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#f1be32,#2ecc71);
+  border-radius:6px;
+  transition:width .4s ease;
+}
+.progress-label{font-size:12.5px;color:#c9c9d9;white-space:nowrap}
+#burger{
+  display:none;
+  background:none;border:none;color:#fff;font-size:22px;cursor:pointer;
+}
+
+/* ---------- LAYOUT ---------- */
+.layout{display:flex;height:calc(100vh - 60px)}
+
+/* ---------- SIDEBAR ---------- */
+nav{
+  width:310px;
+  min-width:310px;
+  background:var(--navy);
+  color:#d7d7e6;
+  overflow-y:auto;
+  padding-bottom:40px;
+}
+nav::-webkit-scrollbar{width:8px}
+nav::-webkit-scrollbar-thumb{background:#3b3b58;border-radius:4px}
+.mod-title{
+  font-size:11.5px;
+  text-transform:uppercase;
+  letter-spacing:1.1px;
+  color:#8b8ba7;
+  padding:20px 18px 8px;
+  font-weight:700;
+  border-top:1px solid #2a2a40;
+}
+.mod-title:first-child{border-top:none}
+.nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 18px;
+  font-size:13.5px;
+  cursor:pointer;
+  border-left:3px solid transparent;
+  transition:.15s;
+  line-height:1.3;
+}
+.nav-item:hover{background:var(--navy-2);color:#fff}
+.nav-item.active{background:var(--navy-2);border-left-color:var(--accent);color:#fff}
+.nav-check{
+  width:16px;height:16px;min-width:16px;
+  border-radius:50%;
+  border:2px solid #4a4a6a;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:800;color:#1b1b32;
+}
+.nav-item.done .nav-check{background:var(--green-l);border-color:var(--green-l)}
+.nav-item.done{color:#9ee6b8}
+
+/* ---------- MAIN ---------- */
+main{
+  flex:1;
+  overflow-y:auto;
+  padding:30px 44px 90px;
+}
+main::-webkit-scrollbar{width:10px}
+main::-webkit-scrollbar-thumb{background:#cfd2d8;border-radius:5px}
+.wrap{max-width:840px;margin:0 auto}
+
+.crumb{font-size:12.5px;color:#7b7b93;text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:6px}
+h1.title{font-size:30px;margin:0 0 22px;line-height:1.2}
+
+.theory{
+  background:#fff;
+  border-radius:12px;
+  padding:24px 28px;
+  box-shadow:0 1px 3px rgba(0,0,0,.08);
+  font-size:15.5px;
+  line-height:1.7;
+}
+.theory h3{margin:20px 0 10px;font-size:18px}
+.theory h3:first-child{margin-top:0}
+.theory p{margin:0 0 12px}
+.theory ul{margin:0 0 14px;padding-left:22px}
+.theory li{margin-bottom:5px}
+.theory code{
+  background:#eef0f4;
+  padding:2px 6px;
+  border-radius:4px;
+  font-family:'Consolas','Monaco',monospace;
+  font-size:13.5px;
+  color:#b8005c;
+}
+.theory pre{
+  background:#1b1b32;
+  color:#e6e6f0;
+  padding:14px 18px;
+  border-radius:10px;
+  overflow-x:auto;
+  font-size:13.5px;
+  line-height:1.6;
+  margin:0 0 16px;
+}
+.theory pre code{background:none;color:inherit;padding:0;font-size:13.5px}
+
+.task{
+  background:#fff8e1;
+  border-left:5px solid var(--accent);
+  border-radius:0 10px 10px 0;
+  padding:16px 22px;
+  margin:20px 0;
+  font-size:15px;
+  line-height:1.65;
+}
+.task b{display:block;font-size:12.5px;letter-spacing:1px;text-transform:uppercase;color:#a07a00;margin-bottom:6px}
+
+/* ---------- EDITOR ---------- */
+.editor-box{
+  border-radius:12px;
+  overflow:hidden;
+  box-shadow:0 1px 3px rgba(0,0,0,.12);
+  border:1px solid #d5d8de;
+  background:#1e1e2e;
+}
+.editor-head{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#181825;
+  color:#a6adc8;
+  padding:9px 16px;
+  font-size:12.5px;
+  font-family:'Consolas',monospace;
+  border-bottom:1px solid #2a2a3d;
+}
+.dot{width:11px;height:11px;border-radius:50%}
+.editor-head .sp{margin-left:auto;color:#585b70;font-size:11.5px}
+
+.CodeMirror{
+  height:auto !important;
+  font-family:'Consolas','Monaco','Courier New',monospace !important;
+  font-size:14px !important;
+  line-height:1.6 !important;
+  background:#1e1e2e !important;
+  color:#cdd6f4 !important;
+  padding:10px 0;
+}
+.CodeMirror-gutters{background:#181825 !important;border:none !important}
+.CodeMirror-linenumber{color:#4c4f69 !important}
+.CodeMirror-cursor{border-left:2px solid var(--accent) !important}
+.CodeMirror-selected{background:#313244 !important}
+.CodeMirror-activeline-background{background:#232336 !important}
+.cm-keyword{color:#cba6f7 !important}
+.cm-string{color:#a6e3a1 !important}
+.cm-number{color:#fab387 !important}
+.cm-comment{color:#6c7086 !important;font-style:italic}
+.cm-def{color:#89b4fa !important}
+.cm-builtin{color:#f9e2af !important}
+.cm-operator{color:#94e2d5 !important}
+.cm-variable{color:#cdd6f4 !important}
+.cm-punctuation{color:#9399b2 !important}
+
+/* ---------- ACTIONS ---------- */
+.actions{display:flex;gap:12px;margin:20px 0 18px;flex-wrap:wrap}
+.btn{
+  border:none;
+  border-radius:9px;
+  padding:12px 22px;
+  font-size:14.5px;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:hover:not(:disabled){background:#166138}
+.btn-ghost{background:#e3e5ea;color:#333}
+.btn-ghost:hover{background:#d3d6dd}
+.btn-warn{background:#fff;color:#c0392b;border:1.5px solid #f0c4bf}
+.btn-warn:hover{background:#fdf1f0}
+
+/* ---------- OUTPUT ---------- */
+.output{margin-top:6px}
+.panel{
+  border-radius:12px;
+  padding:16px 20px;
+  margin-bottom:12px;
+  font-size:14px;
+  line-height:1.6;
+  animation:fade .25s ease;
+}
+@keyframes fade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.panel-title{font-weight:800;font-size:12.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.console{background:#11111b;color:#cdd6f4;border-radius:12px}
+.console .panel-title{color:#7f849c}
+.console pre{margin:0;font-family:'Consolas',monospace;font-size:13.5px;white-space:pre-wrap;word-break:break-word}
+.ok{background:#e8f8ef;border-left:5px solid var(--green-l);color:#14532d}
+.err{background:#fdeceb;border-left:5px solid var(--red);color:#7f1d1d}
+.err pre{margin:8px 0 0;font-family:'Consolas',monospace;font-size:13px;white-space:pre-wrap}
+.info{background:#eef4ff;border-left:5px solid #3b82f6;color:#1e3a8a}
+
+/* ---------- MODAL ---------- */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(15,15,25,.6);
+  display:none;align-items:center;justify-content:center;z-index:100;padding:20px;
+}
+.modal-bg.show{display:flex}
+.modal{
+  background:#fff;border-radius:14px;max-width:720px;width:100%;
+  max-height:80vh;overflow:auto;padding:26px 30px;
+}
+.modal h3{margin:0 0 6px;font-size:19px}
+.modal p{margin:0 0 16px;color:#666;font-size:14px}
+.modal pre{background:#1b1b32;color:#e6e6f0;padding:16px 20px;border-radius:10px;font-size:13.5px;overflow:auto;font-family:'Consolas',monospace;line-height:1.6}
+.modal-close{float:right;border:none;background:#eee;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:700}
+
+/* ---------- LOADER ---------- */
+#loader{
+  position:fixed;inset:0;background:rgba(27,27,50,.92);z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:#fff;gap:18px;
+}
+#loader.hide{display:none}
+.spinner{
+  width:54px;height:54px;border:5px solid #3b3b58;border-top-color:var(--accent);
+  border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loader p{margin:0;font-size:15px;color:#c9c9d9}
+
+@media(max-width:900px){
+  #burger{display:block}
+  nav{position:fixed;left:0;top:60px;bottom:0;z-index:60;transform:translateX(-100%);transition:.25s}
+  nav.open{transform:none;box-shadow:6px 0 24px rgba(0,0,0,.35)}
+  main{padding:22px 18px 90px}
+  .header-progress{max-width:160px}
+  h1.title{font-size:23px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <button id="burger">☰</button>
+  <div class="logo"><span class="py">Py</span>Camp</div>
+  <div class="header-progress">
+    <div class="pbar"><div id="pbarFill"></div></div>
+    <span class="progress-label" id="progressLabel">0 / 0</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="nav"></nav>
+  <main id="main">
+    <div class="wrap">
+      <div class="crumb" id="crumb"></div>
+      <h1 class="title" id="lessonTitle"></h1>
+      <div class="theory" id="theory"></div>
+      <div class="task" id="task"></div>
+
+      <div class="editor-box">
+        <div class="editor-head">
+          <span class="dot" style="background:#ff5f57"></span>
+          <span class="dot" style="background:#febc2e"></span>
+          <span class="dot" style="background:#28c840"></span>
+          <span style="margin-left:10px">main.py</span>
+          <span class="sp">Ctrl + Enter — запустить</span>
+        </div>
+        <textarea id="code"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" id="runBtn">▶ Запустить и проверить</button>
+        <button class="btn btn-ghost" id="solutionBtn">💡 Показать решение</button>
+        <button class="btn btn-warn" id="resetBtn">↺ Сбросить код</button>
+        <button class="btn btn-primary" id="nextBtn" style="display:none">Следующий урок →</button>
+      </div>
+
+      <div class="output" id="output"></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">Закрыть</button>
+    <h3 id="modalTitle">Решение</h3>
+    <p>Попробуй разобраться сам, прежде чем подглядывать 🙂</p>
+    <pre id="modalCode"></pre>
+  </div>
+</div>
+
+<div id="loader" class="hide">
+  <div class="spinner"></div>
+  <p id="loaderText">Загружаем Python…</p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<script>
+/* =======================================================================
+   КУРРИКУЛУМ
+   ======================================================================= */
+const CURRICULUM = [
+
+/* ===================== МОДУЛЬ 1 ===================== */
+{
+  title: "1. Первые шаги",
+  lessons: [
+  {
+    id:"m1l1", title:"Команда print()",
+    theory:`<p><code>print()</code> — самая первая команда, которую изучают в Python. Она выводит значение на экран.</p>
+<pre><code>print("Привет, мир!")</code></pre>
+<p>Текст в кавычках называется <b>строкой</b> (тип <code>str</code>). Кавычки могут быть одинарными или двойными — разницы нет:</p>
+<pre><code>print('Одинарные тоже работают')</code></pre>
+<p>Каждый вызов <code>print()</code> выводит текст с новой строки.</p>`,
+    task:`Выведи на экран фразу <code>Привет, мир!</code>`,
+    starter:`# Напиши свой код ниже\n`,
+    tests:`assert "Привет, мир!" in _output, "На экране нет текста «Привет, мир!». Не забудь кавычки внутри print()."\nprint("✓ Тест пройден")`,
+    solution:`print("Привет, мир!")`
+  },
+  {
+    id:"m1l2", title:"Комментарии",
+    theory:`<p><b>Комментарий</b> — это текст, который Python полностью игнорирует. Он начинается с символа <code>#</code> и нужен, чтобы объяснять код людям.</p>
+<pre><code># Это комментарий, он не выполняется
+print("Код работает")   # а это — комментарий в конце строки</code></pre>
+<p>Хороший код читается легче, когда в нём есть короткие пояснения.</p>`,
+    task:`Выведи две строки: <code>Python</code> и <code>рулит</code> (каждое слово — на своей строке). Добавь в код хотя бы один комментарий.`,
+    starter:`# Добавь комментарий здесь\n`,
+    tests:`lines = [l.strip() for l in _output.strip().split("\\n")]\nassert "Python" in lines, "Выведи слово Python"\nassert "рулит" in lines, "Выведи слово рулит на отдельной строке"\nassert any(l.strip().startswith("#") for l in _code.split("\\n")), "Добавь комментарий, начинающийся с #"\nprint("✓ Тест пройден")`,
+    solution:`# Мой второй урок\nprint("Python")\nprint("рулит")`
+  },
+  {
+    id:"m1l3", title:"Ошибки в коде",
+    theory:`<p>Python не запускает программу, если в ней есть ошибка. Основные виды:</p>
+<ul>
+<li><code>SyntaxError</code> — нарушен синтаксис (например, забыта закрывающая скобка).</li>
+<li><code>NameError</code> — используется имя, которого не существует.</li>
+<li><code>IndentationError</code> — неправильные отступы.</li>
+<li><code>TypeError</code> — операция применяется к неподходящему типу.</li>
+</ul>
+<p>Ошибка — это не провал, а подсказка: читай последнюю строку сообщения, там указана причина.</p>`,
+    task:`Код ниже не работает. Исправь его, чтобы на экране появилось <code>Работает!</code>`,
+    starter:`print("Работает!"\n`,
+    tests:`assert "Работает!" in _output, "Пока не получается. Проверь, все ли скобки закрыты."\nprint("✓ Тест пройден")`,
+    solution:`print("Работает!")`
+  },
+  {
+    id:"m1l4", title:"Переменные",
+    theory:`<p><b>Переменная</b> — это имя, за которым хранится значение. Знак <code>=</code> — это оператор присваивания, а не «равно».</p>
+<pre><code>city = "Москва"
+age = 25
+print(city)</code></pre>
+<p>Правила для имён: буквы, цифры и <code>_</code>; не могут начинаться с цифры; регистр важен (<code>Name</code> и <code>name</code> — разные переменные).</p>`,
+    task:`Создай переменную <code>city</code> со значением <code>"Москва"</code> и выведи её через <code>print()</code>.`,
+    starter:`# создай переменную city\n`,
+    tests:`assert city == "Москва", "Переменная city должна содержать строку Москва"\nassert "Москва" in _output, "Выведи значение переменной city через print()"\nprint("✓ Тест пройден")`,
+    solution:`city = "Москва"\nprint(city)`
+  }]
+},
+
+/* ===================== МОДУЛЬ 2 ===================== */
+{
+  title: "2. Типы данных",
+  lessons: [
+  {
+    id:"m2l1", title:"Числа: int и float",
+    theory:`<p>В Python два основных числовых типа:</p>
+<ul>
+<li><code>int</code> — целые числа: <code>7</code>, <code>-3</code>, <code>1000000</code></li>
+<li><code>float</code> — дробные: <code>3.14</code>, <code>-0.5</code>, <code>2.0</code></li>
+</ul>
+<p>Операторы: <code>+</code> <code>-</code> <code>*</code> <code>/</code> (обычное деление), <code>//</code> (целочисленное), <code>%</code> (остаток), <code>**</code> (степень).</p>
+<pre><code>print(7 / 2)    # 3.5
+print(7 // 2)   # 3
+print(7 % 2)    # 1
+print(2 ** 10)  # 1024</code></pre>`,
+    task:`Создай переменные <code>a = 7</code> и <code>b = 2</code>, затем переменную <code>result</code>, равную <b>целочисленному</b> делению <code>a</code> на <code>b</code>. Выведи <code>result</code>.`,
+    starter:`a = 7\nb = 2\n# посчитай result\n`,
+    tests:`assert a == 7 and b == 2, "a должно быть 7, b должно быть 2"\nassert result == 3, "result должно быть результатом целочисленного деления 7 на 2"\nassert "3" in _output, "Выведи значение result"\nprint("✓ Тест пройден")`,
+    solution:`a = 7\nb = 2\nresult = a // b\nprint(result)`
+  },
+  {
+    id:"m2l2", title:"Строки",
+    theory:`<p>Строка — это последовательность символов. Строки можно складывать (конкатенация) и умножать на число:</p>
+<pre><code>a = "Py"
+b = "thon"
+print(a + b)     # Python
+print("ха" * 3)  # хахаха
+print(len(a + b))  # 6</code></pre>
+<p><code>len()</code> возвращает длину строки.</p>`,
+    task:`Создай <code>first = "Py"</code> и <code>second = "thon"</code>. Переменная <code>word</code> должна быть их конкатенацией. Выведи <code>word</code> и его длину.`,
+    starter:`first = "Py"\nsecond = "thon"\n# создай word\n`,
+    tests:`assert word == "Python", "word должно получиться строкой Python"\nassert "Python" in _output, "Выведи значение word"\nassert "6" in _output, "Выведи длину слова через len()"\nprint("✓ Тест пройден")`,
+    solution:`first = "Py"\nsecond = "thon"\nword = first + second\nprint(word)\nprint(len(word))`
+  },
+  {
+    id:"m2l3", title:"f-строки",
+    theory:`<p><b>f-строка</b> — самый удобный способ вставить значения в текст. Перед кавычками ставится буква <code>f</code>, а внутри — фигурные скобки с выражениями.</p>
+<pre><code>name = "Аня"
+age = 25
+print(f"{name} — {age} лет")</code></pre>
+<p>Внутри <code>{}</code> можно писать любые выражения: <code>f"{age * 2}"</code>, <code>f"{name.upper()}"</code>.</p>`,
+    task:`Даны <code>name = "Аня"</code> и <code>age = 25</code>. Создай переменную <code>info</code>, равную строке <code>Аня, 25 лет</code> — обязательно с помощью f-строки.`,
+    starter:`name = "Аня"\nage = 25\n# создай info с помощью f-строки\n`,
+    tests:`assert info == "Аня, 25 лет", "info должно быть строкой 'Аня, 25 лет'. Используй f-строку."\nprint("✓ Тест пройден")`,
+    solution:`name = "Аня"\nage = 25\ninfo = f"{name}, {age} лет"\nprint(info)`
+  },
+  {
+    id:"m2l4", title:"Логический тип и None",
+    theory:`<p><code>bool</code> имеет всего два значения: <code>True</code> и <code>False</code> (с большой буквы).</p>
+<p><code>None</code> — специальное значение «ничего», «пусто». Оно нужно, когда результата ещё нет.</p>
+<pre><code>is_ready = True
+result = None
+print(type(is_ready))  # &lt;class 'bool'&gt;
+print(type(result))    # &lt;class 'NoneType'&gt;</code></pre>
+<p>Функция <code>type()</code> показывает тип значения.</p>`,
+    task:`Создай <code>is_student = True</code> и <code>grade = None</code>. Выведи тип каждой переменной с помощью <code>print(type(...))</code>.`,
+    starter:`# создай переменные\n`,
+    tests:`assert is_student is True, "is_student должно быть True"\nassert grade is None, "grade должно быть None"\nassert "bool" in _output, "Выведи тип is_student"\nassert "NoneType" in _output, "Выведи тип grade"\nprint("✓ Тест пройден")`,
+    solution:`is_student = True\ngrade = None\nprint(type(is_student))\nprint(type(grade))`
+  },
+  {
+    id:"m2l5", title:"Преобразование типов",
+    theory:`<p>Данные можно превращать из одного типа в другой функциями:</p>
+<ul>
+<li><code>int("42")</code> → <code>42</code></li>
+<li><code>float("3.5")</code> → <code>3.5</code></li>
+<li><code>str(42)</code> → <code>"42"</code></li>
+<li><code>bool(0)</code> → <code>False</code>, <code>bool(5)</code> → <code>True</code></li>
+</ul>
+<p>Важно: <code>"42" + 8</code> вызовет <code>TypeError</code>, потому что строка и число не складываются. Сначала нужно преобразовать тип.</p>`,
+    task:`Дана строка <code>s = "42"</code>. Преобразуй её в целое число и сохрани в <code>n</code>. Затем посчитай <code>total = n + 8</code> и выведи <code>total</code>.`,
+    starter:`s = "42"\n# преобразуй s в число n\n`,
+    tests:`assert isinstance(n, int), "n должно быть целым числом (используй int())"\nassert n == 42, "n должно быть равно 42"\nassert total == 50, "total должно быть равно 50"\nassert "50" in _output, "Выведи total"\nprint("✓ Тест пройден")`,
+    solution:`s = "42"\nn = int(s)\ntotal = n + 8\nprint(total)`
+  }]
+},
+
+/* ===================== МОДУЛЬ 3 ===================== */
+{
+  title: "3. Операторы",
+  lessons: [
+  {
+    id:"m3l1", title:"Арифметические операторы",
+    theory:`<p>Порядок операций такой же, как в математике. Скобки меняют приоритет.</p>
+<pre><code>print(2 + 3 * 4)      # 14
+print((2 + 3) * 4)    # 20
+print(10 / 4)         # 2.5
+print(2 ** 3 ** 2)    # 512 (степень считается справа налево)</code></pre>
+<p>Обрати внимание: <code>/</code> всегда возвращает <code>float</code>, даже если делится нацело: <code>10 / 5 == 2.0</code>.</p>`,
+    task:`Посчитай, сколько секунд в 3 часах 25 минутах. Сохрани результат в переменную <code>seconds</code>.`,
+    starter:`hours = 3\nminutes = 25\n# посчитай seconds\n`,
+    tests:`assert seconds == 12300, "Неверно. 3 часа = 3*3600 секунд, 25 минут = 25*60 секунд"\nprint("✓ Тест пройден")`,
+    solution:`hours = 3\nminutes = 25\nseconds = hours * 3600 + minutes * 60\nprint(seconds)`
+  },
+  {
+    id:"m3l2", title:"Операторы сравнения",
+    theory:`<p>Сравнения возвращают <code>True</code> или <code>False</code>:</p>
+<ul>
+<li><code>==</code> равно &nbsp;·&nbsp; <code>!=</code> не равно</li>
+<li><code>&gt;</code> больше &nbsp;·&nbsp; <code>&lt;</code> меньше</li>
+<li><code>&gt;=</code> больше или равно &nbsp;·&nbsp; <code>&lt;=</code> меньше или равно</li>
+</ul>
+<p>Не путай <code>=</code> (присваивание) и <code>==</code> (сравнение)!</p>
+<pre><code>print(5 == 5)   # True
+print(5 != 3)   # True
+print(5 > 10)   # False</code></pre>`,
+    task:`Даны <code>a = 10</code> и <code>b = 7</code>. Создай три переменные: <code>greater</code> (<code>a &gt; b</code>), <code>equal</code> (<code>a == b</code>) и <code>not_equal</code> (<code>a != b</code>).`,
+    starter:`a = 10\nb = 7\n`,
+    tests:`assert greater is True, "greater должно быть True"\nassert equal is False, "equal должно быть False"\nassert not_equal is True, "not_equal должно быть True"\nprint("✓ Тест пройден")`,
+    solution:`a = 10\nb = 7\ngreater = a > b\nequal = a == b\nnot_equal = a != b`
+  },
+  {
+    id:"m3l3", title:"Логические операторы",
+    theory:`<p><code>and</code>, <code>or</code>, <code>not</code> объединяют условия:</p>
+<pre><code>age = 20
+has_ticket = True
+print(age >= 18 and has_ticket)  # True
+print(age < 18 or not has_ticket)  # False
+print(not has_ticket)  # False</code></pre>
+<p><code>and</code> истинно, только если истинны оба условия. <code>or</code> истинно, если истинно хотя бы одно. <code>not</code> переворачивает значение.</p>`,
+    task:`Даны <code>age = 20</code> и <code>has_ticket = True</code>. Создай <code>can_enter</code> — истинно, если возраст не меньше 18 <b>и</b> есть билет. И <code>is_blocked</code> — истинно, если возраст меньше 18 <b>или</b> билета нет.`,
+    starter:`age = 20\nhas_ticket = True\n`,
+    tests:`assert can_enter is True, "can_enter должно быть True"\nassert is_blocked is False, "is_blocked должно быть False"\nprint("✓ Тест пройден")`,
+    solution:`age = 20\nhas_ticket = True\ncan_enter = age >= 18 and has_ticket\nis_blocked = age < 18 or not has_ticket`
+  },
+  {
+    id:"m3l4", title:"Операторы присваивания",
+    theory:`<p>Короткая запись для изменения переменной:</p>
+<pre><code>score = 10
+score += 5   # score = score + 5
+score -= 3   # score = score - 3
+score *= 2   # score = score * 2
+score //= 4  # score = score // 4
+score %= 3   # score = score % 3
+score **= 2  # score = score ** 2</code></pre>`,
+    task:`Дано <code>score = 10</code>. Увеличь его на 5 через <code>+=</code>, затем умножь на 2 через <code>*=</code>, затем вычти 4 через <code>-=</code>. Выведи результат.`,
+    starter:`score = 10\n`,
+    tests:`assert score == 26, "Должно получиться 26: (10 + 5) * 2 - 4"\nassert "26" in _output, "Выведи значение score"\nprint("✓ Тест пройден")`,
+    solution:`score = 10\nscore += 5\nscore *= 2\nscore -= 4\nprint(score)`
+  }]
+},
+
+/* ===================== МОДУЛЬ 4 ===================== */
+{
+  title: "4. Условия и циклы",
+  lessons: [
+  {
+    id:"m4l1", title:"if / else",
+    theory:`<p>Условие позволяет выполнять код только при выполнении чего-то. <b>Отступ</b> (4 пробела) — обязателен!</p>
+<pre><code>age = 20
+if age >= 18:
+    print("Взрослый")
+else:
+    print("Ребёнок")</code></pre>
+<p>Блок <code>else</code> выполняется, если условие ложно. Двоеточие после условия обязательно.</p>`,
+    task:`Дано <code>number = 8</code>. Если число чётное — выведи <code>Чётное</code>, иначе — <code>Нечётное</code>. Подсказка: остаток от деления на 2 равен нулю.`,
+    starter:`number = 8\n# напиши условие\n`,
+    tests:`assert "Чётное" in _output, "Для числа 8 должно вывестись Чётное"\nassert "Нечётное" not in _output, "Лишний вывод"\nprint("✓ Тест пройден")`,
+    solution:`number = 8\nif number % 2 == 0:\n    print("Чётное")\nelse:\n    print("Нечётное")`
+  },
+  {
+    id:"m4l2", title:"elif",
+    theory:`<p><code>elif</code> («else if») позволяет проверить несколько условий по порядку. Сработает только первое подходящее.</p>
+<pre><code>score = 85
+if score >= 90:
+    grade = "A"
+elif score >= 75:
+    grade = "B"
+elif score >= 60:
+    grade = "C"
+else:
+    grade = "F"</code></pre>`,
+    task:`Дано <code>score = 85</code>. Присвой переменной <code>grade</code>:<br>
+<code>"A"</code> при score ≥ 90, <code>"B"</code> при score ≥ 75, <code>"C"</code> при score ≥ 60, иначе <code>"F"</code>.`,
+    starter:`score = 85\n`,
+    tests:`assert grade == "B", "Для score = 85 должно быть B"\nprint("✓ Тест пройден")`,
+    solution:`score = 85\nif score >= 90:\n    grade = "A"\nelif score >= 75:\n    grade = "B"\nelif score >= 60:\n    grade = "C"\nelse:\n    grade = "F"`
+  },
+  {
+    id:"m4l3", title:"Цикл while",
+    theory:`<p><code>while</code> повторяет блок, пока условие истинно.</p>
+<pre><code>i = 1
+while i <= 3:
+    print(i)
+    i += 1</code></pre>
+<p><b>Важно:</b> не забудь изменить переменную внутри цикла, иначе получится бесконечный цикл.</p>`,
+    task:`С помощью цикла <code>while</code> выведи числа от 1 до 5 — каждое на новой строке.`,
+    starter:`i = 1\n# цикл while\n`,
+    tests:`lines = [l.strip() for l in _output.strip().split("\\n") if l.strip()]\nassert lines == ["1","2","3","4","5"], "Выведи числа 1, 2, 3, 4, 5 — каждое на новой строке"\nprint("✓ Тест пройден")`,
+    solution:`i = 1\nwhile i <= 5:\n    print(i)\n    i += 1`
+  },
+  {
+    id:"m4l4", title:"Цикл for и range()",
+    theory:`<p><code>for</code> перебирает элементы последовательности. <code>range()</code> создаёт последовательность чисел:</p>
+<pre><code>range(5)        # 0,1,2,3,4
+range(2, 6)     # 2,3,4,5
+range(0, 10, 2) # 0,2,4,6,8
+
+for i in range(3):
+    print(i)</code></pre>`,
+    task:`Создай список <code>squares</code>, содержащий квадраты чисел от 1 до 5 (то есть <code>[1, 4, 9, 16, 25]</code>), используя цикл <code>for</code> и <code>range()</code>. Выведи список.`,
+    starter:`squares = []\n# заполни список в цикле\n`,
+    tests:`assert squares == [1, 4, 9, 16, 25], "squares должно быть [1, 4, 9, 16, 25]"\nassert "[1, 4, 9, 16, 25]" in _output, "Выведи список squares"\nprint("✓ Тест пройден")`,
+    solution:`squares = []\nfor i in range(1, 6):\n    squares.append(i ** 2)\nprint(squares)`
+  },
+  {
+    id:"m4l5", title:"break и continue",
+    theory:`<p><code>break</code> полностью прерывает цикл. <code>continue</code> пропускает текущую итерацию и переходит к следующей.</p>
+<pre><code>for i in range(1, 10):
+    if i == 5:
+        break        # выходим из цикла на 5
+    if i % 2 == 0:
+        continue     # пропускаем чётные
+    print(i)         # 1, 3</code></pre>`,
+    task:`С помощью <code>for</code> и <code>break</code> найди первое число от 1 до 100, которое делится на 13 без остатка. Сохрани его в переменную <code>found</code>.`,
+    starter:`found = None\n# используй for и break\n`,
+    tests:`assert found == 13, "Первое число, делящееся на 13 — это 13"\nprint("✓ Тест пройден")`,
+    solution:`found = None\nfor i in range(1, 101):\n    if i % 13 == 0:\n        found = i\n        break\nprint(found)`
+  }]
+},
+
+/* ===================== МОДУЛЬ 5 ===================== */
+{
+  title: "5. Коллекции",
+  lessons: [
+  {
+    id:"m5l1", title:"Списки",
+    theory:`<p><b>Список</b> — упорядоченная изменяемая коллекция. Индексация начинается с нуля, отрицательные индексы считают с конца.</p>
+<pre><code>fruits = ["яблоко", "банан", "вишня"]
+print(fruits[0])    # яблоко
+print(fruits[-1])   # вишня
+print(len(fruits))  # 3
+fruits[1] = "груша"  # списки можно менять</code></pre>`,
+    task:`Создай список <code>fruits</code> из трёх элементов: <code>"яблоко"</code>, <code>"банан"</code>, <code>"вишня"</code>. Выведи первый и последний элемент (используй отрицательный индекс для последнего).`,
+    starter:`# создай список fruits\n`,
+    tests:`assert fruits == ["яблоко", "банан", "вишня"], "Список fruits должен содержать три элемента в указанном порядке"\nassert "яблоко" in _output and "вишня" in _output, "Выведи первый и последний элементы"\nprint("✓ Тест пройден")`,
+    solution:`fruits = ["яблоко", "банан", "вишня"]\nprint(fruits[0])\nprint(fruits[-1])`
+  },
+  {
+    id:"m5l2", title:"Методы списков",
+    theory:`<p>Списки умеют многое:</p>
+<ul>
+<li><code>append(x)</code> — добавить в конец</li>
+<li><code>insert(i, x)</code> — вставить по индексу</li>
+<li><code>remove(x)</code> — удалить первое вхождение значения</li>
+<li><code>pop()</code> — удалить и вернуть последний элемент</li>
+<li><code>sort()</code> — отсортировать</li>
+<li><code>reverse()</code> — перевернуть</li>
+<li><code>index(x)</code>, <code>count(x)</code></li>
+</ul>`,
+    task:`Дано <code>nums = [3, 1, 4]</code>. Добавь в конец число <code>5</code> методом <code>append</code>, затем отсортируй список методом <code>sort</code>. Выведи результат.`,
+    starter:`nums = [3, 1, 4]\n# добавь 5 и отсортируй\n`,
+    tests:`assert nums == [1, 3, 4, 5], "В итоге должно получиться [1, 3, 4, 5]"\nassert "[1, 3, 4, 5]" in _output, "Выведи список nums"\nprint("✓ Тест пройден")`,
+    solution:`nums = [3, 1, 4]\nnums.append(5)\nnums.sort()\nprint(nums)`
+  },
+  {
+    id:"m5l3", title:"Срезы",
+    theory:`<p><b>Срез</b> <code>[начало:конец:шаг]</code> берёт часть последовательности. Конец не включается.</p>
+<pre><code>a = [0, 1, 2, 3, 4, 5]
+a[1:4]    # [1, 2, 3]
+a[:3]     # [0, 1, 2]
+a[3:]     # [3, 4, 5]
+a[::2]    # [0, 2, 4]
+a[::-1]   # [5, 4, 3, 2, 1, 0] — переворот</code></pre>`,
+    task:`Дано <code>letters = ['a','b','c','d','e','f']</code>. Создай:<br>
+<code>first_three</code> — первые три элемента,<br>
+<code>last_two</code> — последние два,<br>
+<code>reversed_list</code> — весь список в обратном порядке.`,
+    starter:`letters = ['a','b','c','d','e','f']\n`,
+    tests:`assert first_three == ['a','b','c'], "first_three должно быть ['a','b','c']"\nassert last_two == ['e','f'], "last_two должно быть ['e','f']"\nassert reversed_list == ['f','e','d','c','b','a'], "reversed_list — весь список наоборот"\nprint("✓ Тест пройден")`,
+    solution:`letters = ['a','b','c','d','e','f']\nfirst_three = letters[:3]\nlast_two = letters[-2:]\nreversed_list = letters[::-1]`
+  },
+  {
+    id:"m5l4", title:"Кортежи",
+    theory:`<p><b>Кортеж</b> (<code>tuple</code>) — неизменяемая последовательность. Записывается в круглых скобках.</p>
+<pre><code>point = (3, 7)
+print(point[0])   # 3
+x, y = point      # распаковка
+print(x, y)       # 3 7</code></pre>
+<p>Кортежи быстрее списков и защищают данные от случайного изменения. Их удобно использовать для фиксированных наборов значений.</p>`,
+    task:`Создай кортеж <code>point = (3, 7)</code>. Распакуй его в переменные <code>x</code> и <code>y</code>. Выведи <code>x</code> и <code>y</code>.`,
+    starter:`# создай кортеж point\n`,
+    tests:`assert point == (3, 7), "point должно быть кортежем (3, 7)"\nassert isinstance(point, tuple), "point должен быть именно кортежем"\nassert x == 3 and y == 7, "После распаковки x = 3, y = 7"\nprint("✓ Тест пройден")`,
+    solution:`point = (3, 7)\nx, y = point\nprint(x)\nprint(y)`
+  },
+  {
+    id:"m5l5", title:"Множества",
+    theory:`<p><b>Множество</b> (<code>set</code>) хранит только уникальные элементы и не сохраняет порядок.</p>
+<pre><code>nums = {1, 2, 2, 3}
+print(nums)          # {1, 2, 3}
+print(len(nums))     # 3
+a | b  # объединение
+a & b  # пересечение
+a - b  # разность</code></pre>
+<p>Множества отлично подходят для удаления дубликатов.</p>`,
+    task:`Дан список <code>numbers = [1, 2, 2, 3, 3, 3, 4]</code>. Создай множество <code>unique</code> из этих значений. Выведи его длину и отсортированный список уникальных значений.`,
+    starter:`numbers = [1, 2, 2, 3, 3, 3, 4]\n`,
+    tests:`assert unique == {1, 2, 3, 4}, "unique должно содержать только 1, 2, 3, 4"\nassert isinstance(unique, set), "unique должно быть множеством"\nassert "4" in _output, "Выведи длину множества"\nprint("✓ Тест пройден")`,
+    solution:`numbers = [1, 2, 2, 3, 3, 3, 4]\nunique = set(numbers)\nprint(len(unique))\nprint(sorted(unique))`
+  },
+  {
+    id:"m5l6", title:"Словари",
+    theory:`<p><b>Словарь</b> (<code>dict</code>) хранит пары «ключ → значение». Доступ — по ключу.</p>
+<pre><code>user = {"name": "Иван", "age": 21}
+print(user["name"])       # Иван
+user["city"] = "Казань"   # добавить
+print(user.get("mail", "нет"))  # нет
+print(list(user.keys()))  # ['name', 'age', 'city']</code></pre>
+<p>Ключи должны быть неизменяемыми (строки, числа, кортежи).</p>`,
+    task:`Создай словарь <code>student</code> с ключами <code>name="Иван"</code>, <code>age=21</code>, <code>city="Казань"</code>. Выведи значение ключа <code>name</code>. Затем добавь ключ <code>email</code> со значением <code>"ivan@mail.ru"</code>.`,
+    starter:`# создай словарь student\n`,
+    tests:`assert student["name"] == "Иван", "student['name'] должно быть 'Иван'"\nassert student["age"] == 21, "student['age'] должно быть 21"\nassert student["city"] == "Казань", "student['city'] должно быть 'Казань'"\nassert student.get("email") == "ivan@mail.ru", "Добавь ключ email"\nassert "Иван" in _output, "Выведи значение ключа name"\nprint("✓ Тест пройден")`,
+    solution:`student = {"name": "Иван", "age": 21, "city": "Казань"}\nprint(student["name"])\nstudent["email"] = "ivan@mail.ru"`
+  },
+  {
+    id:"m5l7", title:"Вложенные структуры и цикл for",
+    theory:`<p>Коллекции можно вкладывать друг в друга: список словарей, словарь списков и т.д.</p>
+<pre><code>users = [
+    {"name": "Аня", "age": 25},
+    {"name": "Борис", "age": 30},
+]
+for user in users:
+    print(user["name"])</code></pre>
+<p>Такой формат очень часто приходит из API и баз данных.</p>`,
+    task:`Дан список <code>users</code> (см. стартовый код). Создай список <code>names</code>, содержащий имена всех пользователей, используя цикл <code>for</code>.`,
+    starter:`users = [\n    {"name": "Аня", "age": 25},\n    {"name": "Борис", "age": 30},\n    {"name": "Вера", "age": 19},\n]\nnames = []\n# заполни names в цикле\n`,
+    tests:`assert names == ["Аня", "Борис", "Вера"], "names должно быть ['Аня', 'Борис', 'Вера']"\nprint("✓ Тест пройден")`,
+    solution:`users = [\n    {"name": "Аня", "age": 25},\n    {"name": "Борис", "age": 30},\n    {"name": "Вера", "age": 19},\n]\nnames = []\nfor user in users:\n    names.append(user["name"])\nprint(names)`
+  }]
+},
+
+/* ===================== МОДУЛЬ 6 ===================== */
+{
+  title: "6. Работа со строками",
+  lessons: [
+  {
+    id:"m6l1", title:"Методы строк",
+    theory:`<p>Строки неизменяемы: любой метод возвращает <b>новую</b> строку.</p>
+<ul>
+<li><code>strip()</code> — убрать пробелы по краям</li>
+<li><code>upper()</code> / <code>lower()</code> — регистр</li>
+<li><code>replace(a, b)</code> — заменить</li>
+<li><code>find(x)</code> / <code>count(x)</code></li>
+<li><code>startswith(x)</code> / <code>endswith(x)</code></li>
+<li><code>title()</code>, <code>capitalize()</code></li>
+</ul>`,
+    task:`Дана строка <code>text = "  Python — это круто!  "</code>. Создай:<br>
+<code>clean</code> — текст без пробелов по краям,<br>
+<code>upper</code> — <code>clean</code> в верхнем регистре,<br>
+<code>replaced</code> — <code>clean</code> с заменой <code>"круто"</code> на <code>"супер"</code>.`,
+    starter:`text = "  Python — это круто!  "\n`,
+    tests:`assert clean == "Python — это круто!", "clean должен быть без пробелов по краям"\nassert upper == "PYTHON — ЭТО КРУТО!", "upper должен быть в верхнем регистре"\nassert replaced == "Python — это супер!", "Замени 'круто' на 'супер'"\nprint("✓ Тест пройден")`,
+    solution:`text = "  Python — это круто!  "\nclean = text.strip()\nupper = clean.upper()\nreplaced = clean.replace("круто", "супер")`
+  },
+  {
+    id:"m6l2", title:"split() и join()",
+    theory:`<p><code>split(sep)</code> разбивает строку на список, <code>join()</code> собирает список в строку.</p>
+<pre><code>"a,b,c".split(",")       # ['a', 'b', 'c']
+"a b c".split()          # ['a', 'b', 'c'] — по пробелам
+"-".join(["a","b","c"])  # 'a-b-c'</code></pre>`,
+    task:`Дана строка <code>csv = "яблоко,банан,вишня"</code>. Разбей её по запятой в список <code>items</code>, затем собери обратно в строку <code>joined</code> с разделителем <code>" | "</code>.`,
+    starter:`csv = "яблоко,банан,вишня"\n`,
+    tests:`assert items == ["яблоко", "банан", "вишня"], "items должно быть списком из трёх слов"\nassert joined == "яблоко | банан | вишня", "joined должно быть 'яблоко | банан | вишня'"\nprint("✓ Тест пройден")`,
+    solution:`csv = "яблоко,банан,вишня"\nitems = csv.split(",")\njoined = " | ".join(items)`
+  },
+  {
+    id:"m6l3", title:"Форматирование чисел",
+    theory:`<p>В f-строках можно управлять форматом вывода:</p>
+<pre><code>pi = 3.14159
+f"{pi:.2f}"    # '3.14' — 2 знака после точки
+f"{0.856:.1%}" # '85.6%' — проценты
+f"{1234567:,}" # '1,234,567' — разделители
+f"{42:05d}"    # '00042' — с ведущими нулями</code></pre>`,
+    task:`Даны <code>name = "Аня"</code> и <code>score = 87.5</code>. Создай переменную <code>result</code> — f-строку вида <code>Аня: 87.50%</code> (два знака после точки и символ %).`,
+    starter:`name = "Аня"\nscore = 87.5\n`,
+    tests:`assert result == "Аня: 87.50%", "result должно быть строкой 'Аня: 87.50%'. Используй f'{score:.2f}'"\nprint("✓ Тест пройден")`,
+    solution:`name = "Аня"\nscore = 87.5\nresult = f"{name}: {score:.2f}%"`
+  }]
+},
+
+/* ===================== МОДУЛЬ 7 ===================== */
+{
+  title: "7. Функции",
+  lessons: [
+  {
+    id:"m7l1", title:"def и return",
+    theory:`<p><b>Функция</b> — именованный блок кода, который можно вызывать многократно.</p>
+<pre><code>def add(a, b):
+    return a + b
+
+result = add(2, 3)
+print(result)  # 5</code></pre>
+<p><code>return</code> возвращает значение и сразу завершает функцию. Без <code>return</code> функция вернёт <code>None</code>.</p>`,
+    task:`Напиши функцию <code>add(a, b)</code>, которая возвращает сумму двух чисел. Вызови её с аргументами 2 и 3 и сохрани результат в переменную <code>result</code>.`,
+    starter:`# определи функцию add\n`,
+    tests:`assert callable(add), "add должна быть функцией"\nassert add(2, 3) == 5, "add(2, 3) должна вернуть 5"\nassert add(-1, 1) == 0, "add(-1, 1) должна вернуть 0"\nassert add(10, 0) == 10, "add(10, 0) должна вернуть 10"\nassert result == 5, "result должен быть результатом add(2, 3)"\nprint("✓ Тест пройден")`,
+    solution:`def add(a, b):\n    return a + b\n\nresult = add(2, 3)\nprint(result)`
+  },
+  {
+    id:"m7l2", title:"Параметры и аргументы",
+    theory:`<p>Функция может принимать любое число параметров. Аргументы можно передавать по позиции или по имени:</p>
+<pre><code>def rect_area(width, height):
+    return width * height
+
+rect_area(3, 4)              # позиционно
+rect_area(height=4, width=3) # по имени</code></pre>`,
+    task:`Напиши две функции:<br>
+<code>area(width, height)</code> — возвращает площадь прямоугольника,<br>
+<code>perimeter(width, height)</code> — возвращает периметр.`,
+    starter:`# определи функции\n`,
+    tests:`assert area(3, 4) == 12, "area(3, 4) должна вернуть 12"\nassert area(5, 5) == 25, "area(5, 5) должна вернуть 25"\nassert perimeter(3, 4) == 14, "perimeter(3, 4) должна вернуть 14"\nassert perimeter(5, 5) == 20, "perimeter(5, 5) должна вернуть 20"\nprint("✓ Тест пройден")`,
+    solution:`def area(width, height):\n    return width * height\n\ndef perimeter(width, height):\n    return 2 * (width + height)`
+  },
+  {
+    id:"m7l3", title:"Значения по умолчанию",
+    theory:`<p>Параметру можно задать значение по умолчанию — тогда аргумент можно не передавать.</p>
+<pre><code>def greet(name, greeting="Привет"):
+    return f"{greeting}, {name}!"
+
+greet("Аня")                  # Привет, Аня!
+greet("Аня", "Здравствуйте")  # Здравствуйте, Аня!</code></pre>
+<p>Параметры со значением по умолчанию должны идти <b>после</b> обычных.</p>`,
+    task:`Напиши функцию <code>greet(name, greeting="Привет")</code>, возвращающую строку вида <code>Привет, Аня!</code>.`,
+    starter:`# определи функцию greet\n`,
+    tests:`assert greet("Аня") == "Привет, Аня!", "greet('Аня') должна вернуть 'Привет, Аня!'"\nassert greet("Аня", "Здравствуйте") == "Здравствуйте, Аня!", "С кастомным приветствием должно работать иначе"\nprint("✓ Тест пройден")`,
+    solution:`def greet(name, greeting="Привет"):\n    return f"{greeting}, {name}!"`
+  },
+  {
+    id:"m7l4", title:"*args и **kwargs",
+    theory:`<p><code>*args</code> собирает позиционные аргументы в кортеж, <code>**kwargs</code> — именованные в словарь.</p>
+<pre><code>def total(*args):
+    return sum(args)
+
+total(1, 2, 3)   # 6
+
+def info(**kwargs):
+    return ", ".join(f"{k}={v}" for k, v in kwargs.items())
+
+info(name="Аня", age=25)  # 'name=Аня, age=25'</code></pre>`,
+    task:`Напиши функцию <code>total(*args)</code>, возвращающую сумму всех переданных чисел (используй <code>sum()</code>). И функцию <code>keys(**kwargs)</code>, возвращающую список имён переданных параметров.`,
+    starter:`# определи функции total и keys\n`,
+    tests:`assert total() == 0, "total() без аргументов должна вернуть 0"\nassert total(1, 2, 3) == 6, "total(1,2,3) должна вернуть 6"\nassert total(10) == 10, "total(10) должна вернуть 10"\nassert keys(a=1, b=2) == ["a", "b"], "keys(a=1, b=2) должна вернуть ['a', 'b']"\nprint("✓ Тест пройден")`,
+    solution:`def total(*args):\n    return sum(args)\n\ndef keys(**kwargs):\n    return list(kwargs.keys())`
+  },
+  {
+    id:"m7l5", title:"lambda и области видимости",
+    theory:`<p><b>lambda</b> — короткая анонимная функция из одного выражения.</p>
+<pre><code>double = lambda x: x * 2
+double(5)   # 10
+
+sorted(["ccc","a","bb"], key=lambda w: len(w))
+# ['a', 'bb', 'ccc']</code></pre>
+<p><b>Область видимости:</b> переменные, созданные внутри функции, снаружи не видны (локальные). Глобальные переменные читать можно, но изменять — только с <code>global</code>.</p>`,
+    task:`Создай <code>double = lambda x: x * 2</code> и <code>square = lambda x: x ** 2</code>. Затем отсортируй список <code>words</code> по длине слова в переменную <code>sorted_words</code>.`,
+    starter:`words = ["банан", "я", "апельсин", "кот"]\n`,
+    tests:`assert double(5) == 10, "double(5) должно быть 10"\nassert square(4) == 16, "square(4) должно быть 16"\nassert sorted_words == ["я", "кот", "банан", "апельсин"], "Отсортируй слова по длине"\nprint("✓ Тест пройден")`,
+    solution:`words = ["банан", "я", "апельсин", "кот"]\ndouble = lambda x: x * 2\nsquare = lambda x: x ** 2\nsorted_words = sorted(words, key=lambda w: len(w))`
+  }]
+},
+
+/* ===================== МОДУЛЬ 8 ===================== */
+{
+  title: "8. Объектно-ориентированное программирование",
+  lessons: [
+  {
+    id:"m8l1", title:"Классы и __init__",
+    theory:`<p><b>Класс</b> — шаблон для создания объектов. <code>__init__</code> — конструктор, вызывается при создании объекта. <code>self</code> — ссылка на сам объект.</p>
+<pre><code>class Dog:
+    def __init__(self, name):
+        self.name = name
+
+rex = Dog("Рекс")
+print(rex.name)  # Рекс</code></pre>`,
+    task:`Создай класс <code>Dog</code> с конструктором <code>__init__(self, name)</code>, сохраняющим имя в <code>self.name</code>. Создай объект <code>my_dog = Dog("Рекс")</code>.`,
+    starter:`# определи класс Dog\n`,
+    tests:`d = Dog("Бобик")\nassert d.name == "Бобик", "Атрибут name должен сохраняться в конструкторе"\nassert my_dog.name == "Рекс", "my_dog должен быть создан как Dog('Рекс')"\nprint("✓ Тест пройден")`,
+    solution:`class Dog:\n    def __init__(self, name):\n        self.name = name\n\nmy_dog = Dog("Рекс")`
+  },
+  {
+    id:"m8l2", title:"Методы",
+    theory:`<p><b>Метод</b> — функция внутри класса. Первый параметр всегда <code>self</code>.</p>
+<pre><code>class Counter:
+    def __init__(self):
+        self.value = 0
+
+    def increment(self):
+        self.value += 1
+
+c = Counter()
+c.increment()
+print(c.value)  # 1</code></pre>`,
+    task:`Дай классу <code>Dog</code> метод <code>bark()</code>, возвращающий строку <code>"Гав!"</code>, и метод <code>greet()</code>, возвращающий <code>f"Привет, я {self.name}"</code>.`,
+    starter:`class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    # добавь методы bark и greet\n`,
+    tests:`d = Dog("Рекс")\nassert d.bark() == "Гав!", "bark() должна вернуть 'Гав!'"\nassert d.greet() == "Привет, я Рекс", "greet() должна вернуть 'Привет, я Рекс'"\nprint("✓ Тест пройден")`,
+    solution:`class Dog:\n    def __init__(self, name):\n        self.name = name\n\n    def bark(self):\n        return "Гав!"\n\n    def greet(self):\n        return f"Привет, я {self.name}"`
+  },
+  {
+    id:"m8l3", title:"Методы, меняющие состояние",
+    theory:`<p>Методы часто изменяют атрибуты объекта — это и есть «состояние».</p>
+<pre><code>class BankAccount:
+    def __init__(self):
+        self.balance = 0
+
+    def deposit(self, amount):
+        self.balance += amount</code></pre>`,
+    task:`Создай класс <code>BankAccount</code> с атрибутом <code>balance = 0</code> в конструкторе. Добавь методы:<br>
+<code>deposit(amount)</code> — увеличивает баланс,<br>
+<code>withdraw(amount)</code> — уменьшает баланс, но не даёт уйти в минус (если денег не хватает — ничего не делать).`,
+    starter:`class BankAccount:\n    def __init__(self):\n        self.balance = 0\n\n    # добавь методы\n`,
+    tests:`acc = BankAccount()\nassert acc.balance == 0, "Начальный баланс 0"\nacc.deposit(100)\nassert acc.balance == 100, "После deposit(100) баланс 100"\nacc.withdraw(30)\nassert acc.balance == 70, "После withdraw(30) баланс 70"\nacc.withdraw(1000)\nassert acc.balance == 70, "Нельзя уйти в минус"\nprint("✓ Тест пройден")`,
+    solution:`class BankAccount:\n    def __init__(self):\n        self.balance = 0\n\n    def deposit(self, amount):\n        self.balance += amount\n\n    def withdraw(self, amount):\n        if amount <= self.balance:\n            self.balance -= amount`
+  },
+  {
+    id:"m8l4", title:"Наследование",
+    theory:`<p>Класс-наследник получает все методы родителя и может их переопределять.</p>
+<pre><code>class Animal:
+    def __init__(self, name):
+        self.name = name
+    def speak(self):
+        return "..."
+
+class Cat(Animal):
+    def speak(self):
+        return "Мяу"
+
+Cat("Мурка").speak()  # Мяу</code></pre>
+<p><code>super()</code> вызывает метод родителя.</p>`,
+    task:`Дан класс <code>Animal</code>. Создай класс <code>Cat(Animal)</code>, переопределяющий <code>speak()</code> так, чтобы он возвращал <code>"Мяу"</code>, и класс <code>Dog(Animal)</code> с <code>"Гав"</code>.`,
+    starter:`class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return "..."\n\n# создай Cat и Dog\n`,
+    tests:`assert issubclass(Cat, Animal), "Cat должен наследоваться от Animal"\nassert Cat("Мурка").speak() == "Мяу", "Cat.speak() должен вернуть 'Мяу'"\nassert Dog("Рекс").speak() == "Гав", "Dog.speak() должен вернуть 'Гав'"\nassert Cat("Мурка").name == "Мурка", "Наследник должен получать __init__ родителя"\nprint("✓ Тест пройден")`,
+    solution:`class Animal:\n    def __init__(self, name):\n        self.name = name\n\n    def speak(self):\n        return "..."\n\nclass Cat(Animal):\n    def speak(self):\n        return "Мяу"\n\nclass Dog(Animal):\n    def speak(self):\n        return "Гав"`
+  },
+  {
+    id:"m8l5", title:"Магические методы",
+    theory:`<p><b>Магические методы</b> (dunder) позволяют объектам вести себя как встроенные типы.</p>
+<ul>
+<li><code>__str__</code> — что вернёт <code>str(obj)</code> и <code>print(obj)</code></li>
+<li><code>__repr__</code> — отладочное представление</li>
+<li><code>__eq__</code> — сравнение через <code>==</code></li>
+<li><code>__len__</code> — работает с <code>len()</code></li>
+</ul>
+<pre><code>class Point:
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y</code></pre>`,
+    task:`Создай класс <code>Money</code> с атрибутами <code>amount</code> и <code>currency</code>. Реализуй <code>__str__</code> (возвращает <code>f"{amount} {currency}"</code>) и <code>__eq__</code> (равны, если совпадают и сумма, и валюта).`,
+    starter:`class Money:\n    def __init__(self, amount, currency):\n        self.amount = amount\n        self.currency = currency\n\n    # добавь __str__ и __eq__\n`,
+    tests:`m = Money(100, "RUB")\nassert str(m) == "100 RUB", "str(Money(100,'RUB')) должно быть '100 RUB'"\nassert Money(100, "RUB") == Money(100, "RUB"), "Одинаковые деньги должны быть равны"\nassert Money(100, "RUB") != Money(100, "USD"), "Разные валюты — не равны"\nassert Money(50, "RUB") != Money(100, "RUB"), "Разные суммы — не равны"\nprint("✓ Тест пройден")`,
+    solution:`class Money:\n    def __init__(self, amount, currency):\n        self.amount = amount\n        self.currency = currency\n\n    def __str__(self):\n        return f"{self.amount} {self.currency}"\n\n    def __eq__(self, other):\n        return self.amount == other.amount and self.currency == other.currency`
+  }]
+},
+
+/* ===================== МОДУЛЬ 9 ===================== */
+{
+  title: "9. Обработка ошибок",
+  lessons: [
+  {
+    id:"m9l1", title:"try / except",
+    theory:`<p>Ошибки можно перехватывать, чтобы программа не падала.</p>
+<pre><code>try:
+    n = int("abc")
+except ValueError:
+    print("Это не число")</code></pre>
+<p>Можно перехватывать разные типы по отдельности, а можно получить сам объект ошибки: <code>except ValueError as e:</code>.</p>`,
+    task:`Напиши функцию <code>safe_div(a, b)</code>, которая возвращает <code>a / b</code>, а при делении на ноль возвращает <code>None</code>.`,
+    starter:`# определи функцию safe_div\n`,
+    tests:`assert safe_div(10, 2) == 5, "safe_div(10, 2) должно быть 5"\nassert safe_div(1, 0) is None, "При делении на ноль должно вернуться None"\nassert safe_div(0, 5) == 0, "safe_div(0, 5) должно быть 0"\nprint("✓ Тест пройден")`,
+    solution:`def safe_div(a, b):\n    try:\n        return a / b\n    except ZeroDivisionError:\n        return None`
+  },
+  {
+    id:"m9l2", title:"else и finally",
+    theory:`<p>Полная конструкция:</p>
+<pre><code>try:
+    ...
+except SomeError:
+    ...      # если ошибка
+else:
+    ...      # если ошибки НЕ было
+finally:
+    ...      # выполняется всегда</code></pre>
+<p><code>finally</code> часто используют для освобождения ресурсов.</p>`,
+    task:`Напиши функцию <code>to_int(s, default=0)</code>: пытается преобразовать строку в целое. Если получается — возвращает число (через блок <code>else</code>), если <code>ValueError</code> — возвращает <code>default</code>.`,
+    starter:`# определи функцию to_int\n`,
+    tests:`assert to_int("42") == 42, "to_int('42') должно быть 42"\nassert to_int("-7") == -7, "to_int('-7') должно быть -7"\nassert to_int("abc") == 0, "Для нечисловой строки — default (0)"\nassert to_int("abc", -1) == -1, "default должен быть настраиваемым"\nprint("✓ Тест пройден")`,
+    solution:`def to_int(s, default=0):\n    try:\n        n = int(s)\n    except ValueError:\n        return default\n    else:\n        return n`
+  },
+  {
+    id:"m9l3", title:"raise — свои исключения",
+    theory:`<p>Оператор <code>raise</code> выбрасывает исключение вручную. Это способ сообщить, что данные некорректны.</p>
+<pre><code>def set_age(age):
+    if age < 0:
+        raise ValueError("Возраст не может быть отрицательным")
+    return age</code></pre>
+<p>Можно создавать и свои классы исключений: <code>class MyError(Exception): pass</code>.</p>`,
+    task:`Напиши функцию <code>check_age(age)</code>: если <code>age &lt; 0</code> — выбрасывает <code>ValueError</code> с сообщением <code>"Возраст не может быть отрицательным"
